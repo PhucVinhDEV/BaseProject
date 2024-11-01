@@ -6,6 +6,7 @@ import com.BitzNomad.identity_service.DtoRequest.UserCreateRequest;
 import com.BitzNomad.identity_service.DtoRequest.UserUpdateRequest;
 import com.BitzNomad.identity_service.Mapper.Auth.UserMapper;
 import com.BitzNomad.identity_service.Service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -25,6 +26,7 @@ import java.util.List;
 @Slf4j
 @RequestMapping("/api/user")
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@SecurityRequirement(name = "bearer-key")
 public class UserRestController {
 
 

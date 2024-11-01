@@ -11,7 +11,8 @@ export default function Authenticate() {
     // console.log(window.location.href);
 
 
- 
+ // Lấy Role từ localStorage
+    const role = localStorage.getItem("role"); 
 
     const authCodeRegex = /code=([^&]+)/;
     const isMatch = window.location.href.match(authCodeRegex);
@@ -20,7 +21,7 @@ export default function Authenticate() {
       const authCode = isMatch ? isMatch[1] : null;
 
       fetch(
-        `http://localhost:8081/indentity/auth/outbound/authentication?code=${authCode}`,
+        `http://localhost:8080/api/v1/auth/outbound?code=${authCode}&role=${role}`,
         {
           method: "POST",
         }

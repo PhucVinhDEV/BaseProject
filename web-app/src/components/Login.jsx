@@ -5,6 +5,8 @@ import {
   CardActions,
   CardContent,
   Divider,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
@@ -17,7 +19,7 @@ import { getToken, setToken } from "../services/localStorageService";
 
 export default function Login() {
   const navigate = useNavigate();
-
+  const [role, setRole] = useState("");
   const handleClickGoogle = () => {
     const callbackUrl = OAuthConfig.redirectUri;
     const authUrl = OAuthConfig.authUri;
@@ -29,15 +31,18 @@ export default function Login() {
     )}&response_type=code&client_id=${googleClientId}&scope=openid%20email%20profile`;
 
     console.log(targetUrl);
+    localStorage.setItem("role", role);
 
     window.location.href = targetUrl;
   };
-
+  const handleRoleChange = (event) => {
+    setRole(event.target.value);
+  };
   const handleClickLogin = async () => {
     console.log("username", username, password);
     console.log(JSON.stringify({ username, password }));
     const responseLogin = await fetch(
-      "http://localhost:8081/indentity/auth/login",
+      "http://localhost:8080/api/v1/auth/sign-in",
 
       {
         method: "POST",
@@ -120,7 +125,24 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+                       {/* Thêm phần chọn Role */}
+                       <Select
+              fullWidth
+              value={role}
+              onChange={handleRoleChange}
+              displayEmpty
+              sx={{ mt: 2, mb: 2 }}
+            >
+              <MenuItem value="" disabled>
+                Select Role
+              </MenuItem>
+              <MenuItem value="ROLE_EMPLOYER">Employer</MenuItem>
+              <MenuItem value="ROLE_ADMIN">Admin</MenuItem>
+              <MenuItem value="ROLE_USER">User</MenuItem>
+            </Select>
             </Box>
+      
+
           </CardContent>
           <CardActions>
             <Box display="flex" flexDirection="column" width="100%" gap="25px">

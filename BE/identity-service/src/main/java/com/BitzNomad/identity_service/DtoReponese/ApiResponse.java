@@ -3,7 +3,7 @@ package com.BitzNomad.identity_service.DtoReponese;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
-@Getter
+
 @Setter
 @Builder
 @AllArgsConstructor

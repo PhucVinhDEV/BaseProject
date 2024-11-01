@@ -1,5 +1,12 @@
 package com.BitzNomad.identity_service.configuration;
 
+import com.BitzNomad.identity_service.Service.AuthenticationService2;
+import com.BitzNomad.identity_service.Service.RedisService;
+import com.BitzNomad.identity_service.repository.UserRepository;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +27,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -33,7 +41,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPONIT = {"/api/user","/auth/login"
-            ,"/auth/logout","/auth/instros``````````````````````````````````````pec","/auth/refesh",
+            ,"/auth/logout","/auth/instrospec","/auth/refesh",
             "/auth/outbound/authentication","/user/myinfo"};
 
     // phai dc tat truoc khi public Error *********************************
@@ -45,9 +53,13 @@ public class SecurityConfig {
     private String SignerKey;
 
     private final CustomJwtDecoder customJwtDecoder;
-
+    private final UserRepository userRepository;
+    private final RedisService redisService;
+    private final AuthenticationService2 authenticateService;
     @Bean
     public SecurityFilterChain filterChain( HttpSecurity httpSecurity) throws Exception {
+        // Thêm RedisJwtAuthenticationFilter vào trước các filter hiện tại
+        httpSecurity.addFilterBefore(redisJwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         //Config endponit authentication
         httpSecurity.authorizeRequests(request -> request
                         .requestMatchers(HttpMethod.POST,PUBLIC_ENDPONIT).permitAll()
@@ -83,6 +95,10 @@ public class SecurityConfig {
 
         return jwtAuthenticationConverter;
     }
+    @Bean
+    public RedisJwtAuthenticationFilter redisJwtAuthenticationFilter() {
+        return new RedisJwtAuthenticationFilter(authenticateService,userRepository,redisService); // Assuming this is your custom filter
+    }
 
     @Bean
     public CorsFilter corsFilter(){
@@ -96,4 +112,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
+
 }

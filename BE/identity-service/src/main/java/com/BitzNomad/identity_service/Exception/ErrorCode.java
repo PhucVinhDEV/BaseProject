@@ -18,6 +18,7 @@ public enum ErrorCode {
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1008, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     INVALID_DUONG(1009, "Your name must be at least {name}", HttpStatus.BAD_REQUEST),
+    JWT_AUTHENTICATION_FAILED(1010, "JWT authentication failed", HttpStatus.UNAUTHORIZED),
     ;
     private int code;
     private String message;

@@ -8,6 +8,10 @@ import com.BitzNomad.identity_service.entity.Auth.User;
 import com.BitzNomad.identity_service.repository.PermissionRepository;
 import com.BitzNomad.identity_service.repository.RoleRepository;
 import com.BitzNomad.identity_service.repository.UserRepository;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
@@ -59,6 +63,7 @@ public class ApplicationConfig {
             createPermissionIfNotExists(PredefinePermission.UPDATE_ROLE,"Update role");
             createPermissionIfNotExists(PredefinePermission.DELETE_ROLE,"Delete role");
 // Tạo role với các quyền CRUD
+
             Role adminRole = roleRepository.save(Role.builder()
                     .name(PredefineRole.ADMIN_ROLE)
                     .description("Admin role")
@@ -82,18 +87,19 @@ public class ApplicationConfig {
                     .build());
 
             // Tạo user với role admin
-            Set<Role> roles = new HashSet<>();
-            roles.add(adminRole);
+            if (userRepository.findByEmail("admin").isEmpty()) {
+                Set<Role> roles = new HashSet<>();
+                roles.add(adminRole);
 
-            User user = User.builder()
-                    .username(ADMIN_USER_NAME)
-                    .password(passwordEncoder.encode(ADMIN_PASSWORD))
-                    .roles(roles)
-                    .build();
-            userRepository.save(user);
+                User user = User.builder()
+                        .email(ADMIN_USER_NAME)
+                        .password(passwordEncoder.encode(ADMIN_PASSWORD))
+                        .roles(roles)
+                        .build();
+                userRepository.save(user);
 
-            log.warn("admin user has been created with default password: admin, please change it");
-
+                log.warn("admin user has been created with default password: admin, please change it");
+            }
         };
     }
     @Bean
@@ -117,4 +123,16 @@ public class ApplicationConfig {
                     .build());
         }
     }
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .addSecurityItem(new SecurityRequirement().addList("bearer-key"))
+                .components(new Components()
+                        .addSecuritySchemes("bearer-key", new SecurityScheme()
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")));
+    }
+
+
 }

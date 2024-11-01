@@ -7,11 +7,11 @@ import { Box, Card, CircularProgress, Typography } from "@mui/material";
 export default function Home() {
   const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState({});
-
+  const [roleEnum, setRoleEnum] = useState({});
   const getUserDetails = async (accessToken) => {
     console.log("Access" + accessToken);
     const response = await fetch(
-      `http://localhost:8081/indentity/api/user/myinfo`,
+      `http://localhost:8080/api/v1/self`,
       {
         method: "GET",
         headers: {

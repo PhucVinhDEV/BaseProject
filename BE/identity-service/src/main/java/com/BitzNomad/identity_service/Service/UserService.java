@@ -62,7 +62,7 @@ class UserImplement implements UserService{
 
     @Override
     public UserReponese createUser(UserCreateRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) throw new AppException(ErrorCode.UserExitsted);
+        if (userRepository.existsByEmail(request.getUsername())) throw new AppException(ErrorCode.UserExitsted);
         // Convert the UserRequest to a User entity
         User user = userMapper.UserCreateconvertToEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -84,7 +84,7 @@ class UserImplement implements UserService{
     public UserReponese getMyInfo() {
         var context = SecurityContextHolder.getContext();
         String name = context.getAuthentication().getName();
-        User user = userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findByEmail(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         return userMapper.convertUserToReponese(user);
     }
 
@@ -116,6 +116,6 @@ class UserImplement implements UserService{
 
     @Override
     public boolean existsByUsername(String email) {
-        return userRepository.existsByUsername(email);
+        return userRepository.existsByEmail(email);
     }
 }

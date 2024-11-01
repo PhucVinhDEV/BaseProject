@@ -79,15 +79,20 @@ public class AuthenticationService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RedisService redisService;
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.UserExitsted));
+        var user = userRepository.findByEmail(request.getUsername()).orElseThrow(() -> new AppException(ErrorCode.UserExitsted));
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if (!authenticated) {
             throw new AppException(ErrorCode.USER_NOT_EXISTED);
         }
 
         String token = generateToken(user);
+        redisService.setValue(user.getId(), token);
+
+        log.info(redisService.getValue(user.getId()).toString());
         return  AuthenticationResponse.builder()
                 .token(token)
                 .authenticated(authenticated)
@@ -99,7 +104,7 @@ public class AuthenticationService {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getUsername())
+                .subject(user.getEmail())
                 .issuer("BitzNomad.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
@@ -136,7 +141,7 @@ public class AuthenticationService {
 
             var u = SingJWT.getJWTClaimsSet().getSubject();
 
-            var user = userRepository.findByUsername(u).orElseThrow(
+            var user = userRepository.findByEmail(u).orElseThrow(
                     () -> new AppException(ErrorCode.UNAUTHORIZED)
             );
 
@@ -225,10 +230,10 @@ public class AuthenticationService {
                 .name(PredefineRole.USER_ROLE)
                 .build());
 
-        var user = userRepository.findByUsername(userInfo.getEmail()).orElseGet(
+        var user = userRepository.findByEmail(userInfo.getEmail()).orElseGet(
                 () -> userRepository.save(User.builder()
                                 .firstName(userInfo.getGivenName())
-                                .username(userInfo.getEmail())
+                                .email(userInfo.getEmail())
                                 .lastName(userInfo.getFamilyName())
                                 .roles(roles)
                         .build())

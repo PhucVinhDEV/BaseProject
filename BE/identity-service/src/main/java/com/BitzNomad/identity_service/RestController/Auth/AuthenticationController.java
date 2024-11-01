@@ -7,6 +7,7 @@ import com.BitzNomad.identity_service.DtoRequest.*;
 import com.BitzNomad.identity_service.Exception.AppException;
 import com.BitzNomad.identity_service.Exception.ErrorCode;
 import com.BitzNomad.identity_service.Service.AuthenticationService;
+import com.BitzNomad.identity_service.Service.AuthenticationService2;
 import com.BitzNomad.identity_service.Service.MailerService;
 import com.BitzNomad.identity_service.Service.UserService;
 import com.BitzNomad.identity_service.entity.Auth.User;
@@ -28,7 +29,7 @@ public class AuthenticationController {
 
 
     @Autowired
-    AuthenticationService   authenticationService;
+    AuthenticationService2 authenticationService;
 
     @Autowired
     UserService userService;
@@ -47,15 +48,15 @@ public class AuthenticationController {
                 .build();
     }
 
-    @PostMapping("/outbound/authentication")
-    ApiResponse<AuthenticationResponse> outboundAuthenticate(@RequestParam("code") String code) {
-        var result = authenticationService.outboundAuthenticate(code);
-        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
-    }
+//    @PostMapping("/outbound/authentication")
+//    ApiResponse<AuthenticationResponse> outboundAuthenticate(@RequestParam("code") String code) {
+//        var result = authenticationService.outboundAuthenticate(code);
+//        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
+//    }
 
     @PostMapping("/refesh")
     ApiResponse<AuthenticationResponse>  authenticate(@RequestBody RefeshRequest request) throws ParseException, JOSEException {
-        AuthenticationResponse result = authenticationService.refeshToken(request);
+        AuthenticationResponse result = authenticationService.refreshToken(request);
         return  ApiResponse.<AuthenticationResponse>builder()
                 .result(result)
                 .build();
@@ -71,7 +72,7 @@ public class AuthenticationController {
     @PostMapping("/instrospec")
     ApiResponse<IntrospecResponsee>  authenticate(@RequestBody IntrospecRequest request) throws ParseException, JOSEException {
 
-        IntrospecResponsee result = authenticationService.Instropec(request);
+        IntrospecResponsee result = authenticationService.introspect(request);
         return  ApiResponse.<IntrospecResponsee>builder()
                 .status(201)
                 .result(result)
